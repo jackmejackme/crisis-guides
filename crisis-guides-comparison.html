@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparație Ghiduri Criză - Drill-Down 19 Țări</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            background: #f8f9fa;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+        
+        .tab-button:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        .content {
+            padding: 30px;
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+        }
+        
+        .section-title {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group label {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .control-group select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .topic-cell {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 150px;
+        }
+        
+        .detail-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .detail-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.15);
+        }
+        
+        .detail-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .detail-card-header:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        .detail-card-content {
+            padding: 20px;
+            display: none;
+            background: #f8f9fa;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .detail-card-content.expanded {
+            display: block;
+        }
+        
+        .detail-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .detail-value ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+        
+        .detail-value li {
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .gap-indicator {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .gap-critical {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .gap-high {
+            background: #ff9900;
+            color: white;
+        }
+        
+        .gap-medium {
+            background: #ffcc00;
+            color: #333;
+        }
+        
+        .gap-aligned {
+            background: #44aa44;
+            color: white;
+        }
+        
+        .toggle-icon {
+            font-size: 1.2em;
+        }
+        
+        .country-flag {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .control-group {
+                flex-direction: column;
+            }
+            
+            .comparison-table {
+                font-size: 0.9em;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Comparație Ghiduri Criză - 19 Țări</h1>
+            <p>Analiză detaliată a recomandărilor de pregătire pentru situații de criză</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('comparison')">🔄 Comparație 2 Țări</button>
+            <button class="tab-button" onclick="showTab('deepdive')">🔍 Deep Dive - Țară</button>
+            <button class="tab-button" onclick="showTab('romania')">🇷🇴 Analiza României</button>
+        </div>
+        
+        <!-- TAB 1: COMPARISON -->
+        <div id="comparison" class="content active">
+            <h2 class="section-title">Comparație Side-by-Side</h2>
+            
+            <div class="control-group">
+                <label>
+                    Țara 1:
+                    <select id="country1" onchange="updateComparison()">
+                        <option value="">Selectează...</option>
+                        <option value="Romania">🇷🇴 România</option>
+                        <option value="Norway">🇳🇴 Norvegia</option>
+                        <option value="Sweden">🇸🇪 Suedia</option>
+                        <option value="Estonia">🇪🇪 Estonia</option>
+                        <option value="Poland">🇵🇱 Polonia</option>
+                        <option value="Germany">🇩🇪 Germania</option>
+                        <option value="Latvia">🇱🇻 Letonia</option>
+                        <option value="Czech">🇨🇿 Cehia</option>
+                        <option value="UK">🇬🇧 UK</option>
+                        <option value="Croatia">🇭🇷 Croația</option>
+                    </select>
+                </label>
+                
+                <label>
+                    Țara 2:
+                    <select id="country2" onchange="updateComparison()">
+                        <option value="">Selectează...</option>
+                        <option value="Romania">🇷🇴 România</option>
+                        <option value="Norway">🇳🇴 Norvegia</option>
+                        <option value="Sweden">🇸🇪 Suedia</option>
+                        <option value="Estonia">🇪🇪 Estonia</option>
+                        <option value="Poland">🇵🇱 Polonia</option>
+                        <option value="Germany">🇩🇪 Germania</option>
+                        <option value="Latvia">🇱🇻 Letonia</option>
+                        <option value="Czech">🇨🇿 Cehia</option>
+                        <option value="UK">🇬🇧 UK</option>
+                        <option value="Croatia">🇭🇷 Croația</option>
+                    </select>
+                </label>
+            </div>
+            
+            <div id="comparisonResult"></div>
+        </div>
+        
+        <!-- TAB 2: DEEP DIVE -->
+        <div id="deepdive" class="content">
+            <h2 class="section-title">Analiza Detaliată - O Țară</h2>
+            
+            <div class="control-group">
+                <label>
+                    Selectează țară:
+                    <select id="countryDeep" onchange="updateDeepDive()">
+                        <option value="">Selectează...</option>
+                        <option value="Romania">🇷🇴 România</option>
+                        <option value="Norway">🇳🇴 Norvegia</option>
+                        <option value="Sweden">🇸🇪 Suedia</option>
+                        <option value="Estonia">🇪🇪 Estonia</option>
+                        <option value="Poland">🇵🇱 Polonia</option>
+                        <option value="Germany">🇩🇪 Germania</option>
+                        <option value="Latvia">🇱🇻 Letonia</option>
+                        <option value="Czech">🇨🇿 Cehia</option>
+                        <option value="UK">🇬🇧 UK</option>
+                        <option value="Croatia">🇭🇷 Croația</option>
+                    </select>
+                </label>
+            </div>
+            
+            <div id="deepdiveResult"></div>
+        </div>
+        
+        <!-- TAB 3: ROMANIA ANALYSIS -->
+        <div id="romania" class="content">
+            <h2 class="section-title">🇷🇴 Recomandări Detaliate pentru România</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 1.05em;">
+                Pe baza analizei benchmark a 19 țări, iată recomandările concrete pentru fiecare domeniu:
+            </p>
+            <div id="romaniaAnalysis"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Complete country data with Romania detailed recommendations
+        const countryData = {
+            Romania: {
+                flag: '🇷🇴',
+                topics: {
+                    water: {
+                        title: 'APĂ POTABILĂ',
+                        icon: '💧',
+                        current: 'Generic 4L fără context',
+                        recommended: '20 litri/persoană/săptămână (EXPLICIT)',
+                        details: '• Minim 3 litri/zi: 1-2L pentru băut/gătit, 1-2L pentru igienă\n• Pentru familie de 4: 80-160 litri depozitare în locuri corespunzătoare\n• Benchmark: Norvegia 20L/săpt (MAXIM), germania 14L/săpt',
+                        gap: 'CRITICAL'
+                    },
+                    food: {
+                        title: 'ALIMENTE',
+                        icon: '🍽️',
+                        current: 'NU sunt specificate zilele',
+                        recommended: 'Stoc minim 7 zile (aliniere Norvegia/Estonia)',
+                        details: '• Alimente care nu necesită refrigerare: conserve, biscuiți, fructe uscate, nuci\n• Produse cu durată lungă valabilitate: minim 6 luni\n• Alimente gata de consum fără gătit/fără apă\n• Pentru familie de 4: 28 porții diverse, 1 persoană = 1 meniu/zi',
+                        gap: 'CRITICAL'
+                    },
+                    medicine: {
+                        title: 'MEDICAMENTE',
+                        icon: '💊',
+                        current: 'NU sunt specificate zilele',
+                        recommended: 'Stoc minim 7 zile pentru fiecare membru familie',
+                        details: '• Medicamente cronice pentru fiecare membru familia\n• Analgezice, antipireticale (paracetamol/ibuprofen)\n• Anti-diaree (loperamid)\n• Antihistaminice pentru alergii\n• Dezinfectant + kit prim ajutor complet',
+                        gap: 'CRITICAL'
+                    },
+                    cash: {
+                        title: 'BANI',
+                        icon: '💰',
+                        current: 'Generic bani lichizi fără sume',
+                        recommended: '200-300 RON în bancnote mici (10, 20, 50 RON)',
+                        details: '• Minim 1 săptămână stoc cash\n• Raționament: ATM-uri și card payment NU vor funcționa\n• Precedent internațional: Norvegia recomandă 70-100 EUR/adult',
+                        gap: 'HIGH'
+                    },
+                    radio: {
+                        title: 'RADIO',
+                        icon: '📻',
+                        current: 'Generic AM/FM fără frecvență',
+                        recommended: 'Radio cu frecvență SPECIFICĂ',
+                        details: '• România Actualități: 96.0 FM (PRINCIPAL)\n• Alternative: Radio România muzical, radio local\n• Radio baterie-powered + baterii de rezervă obligatorii\n• Standard: DAB sau FM cu recepție bună',
+                        gap: 'HIGH'
+                    },
+                    earthquake: {
+                        title: 'CUTREMUR',
+                        icon: '🏚️',
+                        current: 'ABSENT COMPLET - RISC MAJOR',
+                        recommended: 'Proceduri DROP, COVER, HOLD ON (3 pași)',
+                        details: '• RISC REAL: Carpații au risc seismic, București lovit 1977, 1990\n• INDOOR: sub mobilă, pereți de susținere, plou colț\n• OUTDOOR: departe de clădiri, copaci, linii electrice\n• Replici și aftershock-uri\n• URGENT: Imagini și diagrame ca în USA/Croația/NZ',
+                        gap: 'CRITICAL'
+                    },
+                    iodine: {
+                        title: 'PASTILE IOD',
+                        icon: '⚕️',
+                        current: 'ABSENT COMPLET',
+                        recommended: 'Protocol explicit 120mg (aliniament Norvegia/Finlanda)',
+                        details: '• Pentru copii sub 12 ani\n• Pentru adulți sub 40 ani\n• Pentru femei gravide care alăptează\n• Doză: 120 mg conform recomandări WHO\n• ATENȚIE: Se administrează DOAR la ordinul autorităților\n• RISC: Cernavodă central nuclear 440 MW',
+                        gap: 'CRITICAL'
+                    },
+                    floods: {
+                        title: 'INUNDAȚII',
+                        icon: '🌊',
+                        current: 'Proceduri incomplete',
+                        recommended: 'Proceduri pas-cu-pas (aliniere Germania/Croația/UK)',
+                        details: '• NU traversa apă o pe apă suficient să ridice o mașină\n• Urcă sus în clădiri/la etaj\n• Semnalizează pentru ajutor: drapel sau telefon\n• După inundație: evită contactul cu apa infectată\n• Contactează autorități pentru evacuare',
+                        gap: 'MEDIUM'
+                    }
+                }
+            },
+            
+            Norway: {
+                flag: '🇳🇴',
+                topics: {
+                    water: { title: 'APĂ POTABILĂ', icon: '💧', recommendation: '20 L/persoană/săptămână', details: 'Clean with 2 caps chlorine per 10L, store dark cool place' },
+                    food: { title: 'ALIMENTE', icon: '🍽️', recommendation: '1 week supply', details: 'Room temperature: biscuits, cereal, conserves, nuts, chocolate, honey' },
+                    medicine: { title: 'MEDICAMENTE', icon: '💊', recommendation: '7 days + iodine 120mg', details: 'For children and adults <40, pregnant/nursing women' },
+                    cash: { title: 'BANI', icon: '💰', recommendation: 'Multiple cards + cash', details: 'Different payment methods, various denominations' },
+                    radio: { title: 'RADIO', icon: '📻', recommendation: 'DAB radio battery-powered', details: 'NRK P1 emergency channel. Solar or manual wind-up' },
+                    earthquake: { title: 'CUTREMUR', icon: '🏚️', recommendation: 'General shelter', details: 'Building safety principles apply' },
+                    iodine: { title: 'PASTILE IOD', icon: '⚕️', recommendation: '120mg tablets', details: 'For children, adults <40, pregnant/nursing women' },
+                    floods: { title: 'INUNDAȚII', icon: '🌊', recommendation: 'General prep', details: 'Climate risk preparation' }
+                }
+            },
+            
+            Sweden: {
+                flag: '🇸🇪',
+                topics: {
+                    water: { title: 'APĂ POTABILĂ', icon: '💧', recommendation: '3 L/person/day', details: 'Cool dark place, sealed containers' },
+                    food: { title: 'ALIMENTE', icon: '🍽️', recommendation: '7-10 days', details: 'Pasta, rice, canned goods, nuts, energy bars' },
+                    medicine: { title: 'MEDICAMENTE', icon: '💊', recommendation: 'Extra supply home', details: 'Prescription medicines' },
+                    cash: { title: 'BANI', icon: '💰', recommendation: 'Small denominations', details: 'Cards/ATM may not work' },
+                    radio: { title: 'RADIO', icon: '📻', recommendation: 'Battery-powered', details: 'P4 emergency channel' },
+                    earthquake: { title: 'CUTREMUR', icon: '🏚️', recommendation: 'General shelter', details: 'Basements, cellars' },
+                    iodine: { title: 'PASTILE IOD', icon: '⚕️', recommendation: 'Radiological context', details: 'Mentioned but not detailed' },
+                    floods: { title: 'INUNDAȚII', icon: '🌊', recommendation: 'Climate risk', details: 'Increased flooding potential' }
+                }
+            },
+            
+            Estonia: {
+                flag: '🇪🇪',
+                topics: {
+                    water: { title: 'APĂ POTABILĂ', icon: '💧', recommendation: '3 L/person/day', details: 'Purification tablets or filters' },
+                    food: { title: 'ALIMENTE', icon: '🍽️', recommendation: '7 days (50% ready-to-eat)', details: 'Soups, crackers, nuts, dried fruit' },
+                    medicine: { title: 'MEDICAMENTE', icon: '💊', recommendation: '7 days supply', details: 'Various medication types' },
+                    cash: { title: 'BANI', icon: '💰', recommendation: '1 week family needs', details: 'Card payments may not work' },
+                    radio: { title: 'RADIO', icon: '📻', recommendation: 'Battery-operated', details: 'Hourly news' },
+                    earthquake: { title: 'CUTREMUR', icon: '🏚️', recommendation: 'Load-bearing walls', details: 'Floor level shelter' },
+                    iodine: { title: 'PASTILE IOD', icon: '⚕️', recommendation: 'Not mentioned', details: 'CBRN covered separately' },
+                    floods: { title: 'INUNDAȚII', icon: '🌊', recommendation: 'Warning system', details: 'Emergency procedures' }
+                }
+            },
+            
+            Poland: {
+                flag: '🇵🇱',
+                topics: {
+                    water: { title: 'APĂ POTABILĂ', icon: '💧', recommendation: '3 L/person/day', details: 'Bottled or purification tablets' },
+                    food: { title: 'ALIMENTE', icon: '🍽️', recommendation: '3+ days', details: 'Ready consumption items' },
+                    medicine: { title: 'MEDICAMENTE', icon: '💊', recommendation: '3+ days', details: 'Painkillers, anti-inflammatory' },
+                    cash: { title: 'BANI', icon: '💰', recommendation: 'Various denominations', details: 'Disabled during blackouts' },
+                    radio: { title: 'RADIO', icon: '📻', recommendation: 'Battery-powered/wind-up', details: 'CB or walkie-talkie' },
+                    earthquake: { title: 'CUTREMUR', icon: '🏚️', recommendation: 'DROP, COVER, HOLD ON', details: 'Detailed procedures' },
+                    iodine: { title: 'PASTILE IOD', icon: '⚕️', recommendation: 'CBRN context', details: 'Radiation readiness' },
+                    floods: { title: 'INUNDAȚII', icon: '🌊', recommendation: 'Detailed action', details: 'Sandbags, evacuation flags' }
+                }
+            },
+            
+            Germany: {
+                flag: '🇩🇪',
+                topics: {
+                    water: { title: 'APĂ POTABILĂ', icon: '💧', recommendation: '2-3 L/person/day', details: '10 days supply' },
+                    food: { title: 'ALIMENTE', icon: '🍽️', recommendation: '10 days', details: 'Non-perishable items' },
+                    medicine: { title: 'MEDICAMENTE', icon: '💊', recommendation: 'Regular prescribed', details: 'Painkillers, cold remedies' },
+                    cash: { title: 'BANI', icon: '💰', recommendation: 'Sufficient reserves', details: 'ATMs offline in power cuts' },
+                    radio: { title: 'RADIO', icon: '📻', recommendation: 'Battery/wind-up VHF', details: 'Digital reception' },
+                    earthquake: { title: 'CUTREMUR', icon: '🏚️', recommendation: 'General building', details: 'Safety principles' },
+                    iodine: { title: 'PASTILE IOD', icon: '⚕️', recommendation: 'Not mentioned', details: 'No guidance' },
+                    floods: { title: 'INUNDAȚII', icon: '🌊', recommendation: '10 days prep', details: 'Risk assessment' }
+                }
+            },
+            
+            Latvia: {
+                flag: '🇱🇻',
+                topics: {
+                    water: { title: 'APĂ POTABILĂ', icon: '💧', recommendation: '3 L/person/day', details: '3-7 days minimum' },
+                    food: { title: 'ALIMENTE', icon: '🍽️', recommendation: '3-7 days', details: 'Long shelf life' },
+                    medicine: { title: 'MEDICAMENTE', icon: '💊', recommendation: 'Pain relief, GI meds', details: 'Allergy medications' },
+                    cash: { title: 'BANI', icon: '💰', recommendation: 'Weekly family needs', details: 'Various denominations' },
+                    radio: { title: 'RADIO', icon: '📻', recommendation: 'Portable radio', details: 'Extra batteries' },
+                    earthquake: { title: 'CUTREMUR', icon: '🏚️', recommendation: 'Not mentioned', details: 'General principles' },
+                    iodine: { title: 'PASTILE IOD', icon: '⚕️', recommendation: 'Not mentioned', details: 'CBRN measures' },
+                    floods: { title: 'INUNDAȚII', icon: '🌊', recommendation: 'Not primary', details: 'Emergency procedures' }
+                }
+            },
+            
+            Czech: {
+                flag: '🇨🇿',
+                topics: {
+                    water: { title: 'APĂ POTABILĂ', icon: '💧', recommendation: '2 L/person/day', details: '72 hours minimum' },
+                    food: { title: 'ALIMENTE', icon: '🍽️', recommendation: '72 hours', details: 'Non-perishable' },
+                    medicine: { title: 'MEDICAMENTE', icon: '💊', recommendation: '1 week', details: 'Various types' },
+                    cash: { title: 'BANI', icon: '💰', recommendation: 'Various denominations', details: 'Blackout protection' },
+                    radio: { title: 'RADIO', icon: '📻', recommendation: 'Battery-powered', details: 'Spare batteries' },
+                    earthquake: { title: 'CUTREMUR', icon: '🏚️', recommendation: 'Warning system', details: 'General signal' },
+                    iodine: { title: 'PASTILE IOD', icon: '⚕️', recommendation: 'Not mentioned', details: 'No guidance' },
+                    floods: { title: 'INUNDAȚII', icon: '🌊', recommendation: 'Crisis situations', details: 'Emergency response' }
+                }
+            },
+            
+            UK: {
+                flag: '🇬🇧',
+                topics: {
+                    water: { title: 'APĂ POTABILĂ', icon: '💧', recommendation: 'Bottled water', details: 'Vital reserve' },
+                    food: { title: 'ALIMENTE', icon: '🍽️', recommendation: 'Few days', details: 'Tinned goods' },
+                    medicine: { title: 'MEDICAMENTE', icon: '💊', recommendation: 'Regular medicines', details: 'NHS 111 advice' },
+                    cash: { title: 'BANI', icon: '💰', recommendation: 'Cash reserves', details: 'Cards offline' },
+                    radio: { title: 'RADIO', icon: '📻', recommendation: 'Battery/wind-up', details: 'Power cut updates' },
+                    earthquake: { title: 'CUTREMUR', icon: '🏚️', recommendation: 'General building', details: 'Less emphasis' },
+                    iodine: { title: 'PASTILE IOD', icon: '⚕️', recommendation: 'Not mentioned', details: 'Not detailed' },
+                    floods: { title: 'INUNDAȚII', icon: '🌊', recommendation: 'Not primary', details: 'General prep' }
+                }
+            },
+            
+            Croatia: {
+                flag: '🇭🇷',
+                topics: {
+                    water: { title: 'APĂ POTABILĂ', icon: '💧', recommendation: '1.5-2 L/person', details: 'Well-prepared' },
+                    food: { title: 'ALIMENTE', icon: '🍽️', recommendation: '2+ days', details: 'Ready-to-eat' },
+                    medicine: { title: 'MEDICAMENTE', icon: '💊', recommendation: 'Supply ready', details: 'Various types' },
+                    cash: { title: 'BANI', icon: '💰', recommendation: 'Explicit amount', details: 'Various denominations' },
+                    radio: { title: 'RADIO', icon: '📻', recommendation: 'Specific frequency', details: 'Emergency channel' },
+                    earthquake: { title: 'CUTREMUR', icon: '🏚️', recommendation: 'DROP, COVER, HOLD ON', details: 'Detailed procedures' },
+                    iodine: { title: 'PASTILE IOD', icon: '⚕️', recommendation: 'Explicit protocol', details: 'Authority ordered' },
+                    floods: { title: 'INUNDAȚII', icon: '🌊', recommendation: 'Detailed steps', details: 'Complete procedures' }
+                }
+            }
+        };
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function updateComparison() {
+            const country1 = document.getElementById('country1').value;
+            const country2 = document.getElementById('country2').value;
+            const result = document.getElementById('comparisonResult');
+            
+            if (!country1 || !country2) {
+                result.innerHTML = '<p style="color: #999;">Selectează ambele țări pentru comparație</p>';
+                return;
+            }
+            
+            const data1 = countryData[country1];
+            const data2 = countryData[country2];
+            
+            let html = '<table class="comparison-table"><thead><tr><th>Domeniu</th><th>' + country1 + ' ' + data1.flag + '</th><th>' + country2 + ' ' + data2.flag + '</th></tr></thead><tbody>';
+            
+            for (const key in data1.topics) {
+                const t1 = data1.topics[key];
+                const t2 = data2.topics[key];
+                html += `<tr>
+                    <td class="topic-cell">${t1.icon} ${t1.title}</td>
+                    <td><strong>${t1.recommendation}</strong><br><span style="color: #666; font-size: 0.9em;">${t1.details}</span></td>
+                    <td><strong>${t2.recommendation}</strong><br><span style="color: #666; font-size: 0.9em;">${t2.details}</span></td>
+                </tr>`;
+            }
+            
+            html += '</tbody></table>';
+            result.innerHTML = html;
+        }
+        
+        function updateDeepDive() {
+            const country = document.getElementById('countryDeep').value;
+            const result = document.getElementById('deepdiveResult');
+            
+            if (!country) {
+                result.innerHTML = '<p style="color: #999;">Selectează o țară</p>';
+                return;
+            }
+            
+            const data = countryData[country];
+            let html = '';
+            
+            for (const key in data.topics) {
+                const topic = data.topics[key];
+                const gapClass = topic.gap ? `gap-indicator gap-${topic.gap.toLowerCase()}` : '';
+                const gapText = topic.gap ? topic.gap : '';
+                
+                html += `<div class="detail-card">
+                    <div class="detail-card-header" onclick="this.nextElementSibling.classList.toggle('expanded')">
+                        <span>${topic.icon} ${topic.title} ${gapText ? '<span class="' + gapClass + '">' + gapText + '</span>' : ''}</span>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="detail-card-content">
+                        <div class="detail-item">
+                            <div class="detail-label">Status Actual (România):</div>
+                            <div class="detail-value">${topic.current || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Recomandare:</div>
+                            <div class="detail-value">${topic.recommended || topic.recommendation}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Detalii:</div>
+                            <div class="detail-value">${topic.details.replace(/\n/g, '<br>')}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            
+            result.innerHTML = html;
+        }
+        
+        function updateRomaniaAnalysis() {
+            const result = document.getElementById('romaniaAnalysis');
+            const data = countryData.Romania;
+            let html = '';
+            
+            for (const key in data.topics) {
+                const topic = data.topics[key];
+                const gapClass = `gap-indicator gap-${topic.gap.toLowerCase()}`;
+                
+                html += `<div class="detail-card">
+                    <div class="detail-card-header" onclick="this.nextElementSibling.classList.toggle('expanded')">
+                        <span>${topic.icon} ${topic.title} <span class="${gapClass}">${topic.gap}</span></span>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="detail-card-content">
+                        <div class="detail-item">
+                            <div class="detail-label">❌ Status Actual:</div>
+                            <div class="detail-value">${topic.current}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">✅ Recomandare Detaliată:</div>
+                            <div class="detail-value"><strong>${topic.recommended}</strong></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">📋 Implementare:</div>
+                            <div class="detail-value">${topic.details.replace(/\n/g, '<br>')}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            
+            result.innerHTML = html;
+        }
+        
+        window.onload = () => {
+            updateRomaniaAnalysis();
+        };
+    </script>
+</body>
+</html>
